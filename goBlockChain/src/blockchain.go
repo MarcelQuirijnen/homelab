@@ -74,7 +74,7 @@ func (b *Block) MarshalJSON() ([]byte, error) {
 func NewBlockchain(blockchainAddress string) *Blockchain {
 	b := &Block{}
 	bc := new(Blockchain)
-	bc.blockchainAddress = blockchainAddress
+
 	bc.CreateBlock(0, b.Hash())
 	return bc
 }
@@ -106,7 +106,7 @@ func (bc *Blockchain) ValidProof(nonce int, previousHash [32]byte, transactions 
 	zeros := strings.Repeat("0", difficulty)
 	guessBlock := Block{0, nonce, previousHash, transactions}
 	guessHashStr := fmt.Sprintf("%x", guessBlock.Hash())
-	// fmt.Println(guessHashStr)
+	fmt.Println(guessHashStr)
 	return guessHashStr[:difficulty] == zeros
 	// if guessHashStr[:difficulty] == zeros {
 	// 	fmt.Printf("nonce %d, hash %x\n", nonce, guessHashStr)
@@ -132,6 +132,23 @@ func (bc *Blockchain) Mining() bool {
 	bc.CreateBlock(nonce, previousHash)
 	log.Println("action=mining, status=success")
 	return true
+}
+
+func (bc *Blockchain) CalculateTotalAmount(blockchainAddress string) float32 {
+	var totalAmount float32 = 0.0
+	for _, b := range bc.chain {
+		for _, t := range b.transactions {
+			value := t.value
+			if blockchainAddress == t.recipientBlockchainAddress {
+				totalAmount += value
+			}
+
+			if blockchainAddress == t.senderBlockchainAddress {
+				totalAmount -= value
+			}
+		}
+	}
+	return totalAmount
 }
 
 func NewTransaction(sender string, recipient string, value float32) *Transaction {
@@ -188,4 +205,7 @@ func main() {
 	blockChain.Mining()
 	blockChain.Print()
 
+	fmt.Printf("me %.1f\n", blockChain.CalculateTotalAmount("my_blockchain_address")) // I mined, so I earned
+	fmt.Printf("C %.1f\n", blockChain.CalculateTotalAmount("C"))                      // C only send, so neg result
+	fmt.Printf("D %.1f\n", blockChain.CalculateTotalAmount("D"))                      // D receives from C
 }
