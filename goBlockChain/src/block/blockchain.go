@@ -1,4 +1,4 @@
-package main
+package block
 
 import (
 	"crypto/sha256"
@@ -184,28 +184,4 @@ func (bc *Blockchain) Print() {
 		block.Print()
 	}
 	fmt.Printf("%s\n", strings.Repeat(" * ", 25))
-}
-
-func init() {
-	log.SetPrefix("BlockChain: ")
-}
-
-func main() {
-	myBlockchainAddress := "my_blockchain_address"
-
-	blockChain := NewBlockchain(myBlockchainAddress)
-	blockChain.Print()
-
-	blockChain.AddTransaction("A", "B", 1.0)
-	blockChain.Mining()
-	blockChain.Print()
-
-	blockChain.AddTransaction("C", "D", 2.0)
-	blockChain.AddTransaction("X", "Y", 3.0)
-	blockChain.Mining()
-	blockChain.Print()
-
-	fmt.Printf("me %.1f\n", blockChain.CalculateTotalAmount("my_blockchain_address")) // I mined, so I earned
-	fmt.Printf("C %.1f\n", blockChain.CalculateTotalAmount("C"))                      // C only send, so neg result
-	fmt.Printf("D %.1f\n", blockChain.CalculateTotalAmount("D"))                      // D receives from C
 }
